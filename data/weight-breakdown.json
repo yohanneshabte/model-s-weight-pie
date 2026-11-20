@@ -1,0 +1,15 @@
+{
+  "schema": "weight-breakdown/v1",
+  "vehicle": "2024 Tesla Model S Long Range (stock)",
+  "unit": "lb",
+  "source": "Estimates for illustration, not official Tesla figures. Edit this file to match your own car.",
+  "components": [
+    { "id": "battery",     "label": "Battery Pack",       "value": 1100 },
+    { "id": "body",        "label": "Body and Chassis",   "value": 1500 },
+    { "id": "interior",    "label": "Interior and Glass", "value": 800 },
+    { "id": "wheels",      "label": "Wheels and Tires",   "value": 400 },
+    { "id": "electronics", "label": "Electronics",        "value": 400 },
+    { "id": "fluids",      "label": "Fluids",             "value": 200 },
+    { "id": "motors",      "label": "Motors",             "value": 160 }
+  ]
+}

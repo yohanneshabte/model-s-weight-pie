@@ -3,95 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>2024 Model S LR Weight Breakdown</title>
-<style>
-  :root { --bg:#0b0b0d; --card:#15151a; --text:#f2efe6; --muted:#9a968c; --gold:#d4af37; }
-  * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
-  .wrap { display:flex; flex-wrap:wrap; gap:48px; align-items:center; justify-content:center; max-width:1200px; }
-  h1 { width:100%; text-align:center; font-size:clamp(22px,3vw,34px); font-weight:600; color:var(--gold); letter-spacing:.5px; }
-  .chart { position:relative; width:min(80vw,460px); aspect-ratio:1; }
-  .chart svg { width:100%; height:100%; transform:rotate(-90deg); }
-  .center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-  .center .big { font-size:clamp(30px,5vw,52px); font-weight:700; color:var(--gold); }
-  .center .small { font-size:clamp(14px,1.8vw,18px); color:var(--muted); }
-  ul { list-style:none; padding:0; display:grid; gap:12px; font-size:clamp(16px,2vw,22px); }
-  li { display:grid; grid-template-columns:22px 1fr auto auto; gap:14px; align-items:center;
-       background:var(--card); padding:12px 18px; border-radius:12px; cursor:pointer; transition:transform .15s; }
-  li:hover, li.on { transform:translateX(6px); outline:1px solid var(--gold); }
-  .sw { width:18px; height:18px; border-radius:5px; }
-  .num { color:var(--text); font-variant-numeric:tabular-nums; }
-  .pct { color:var(--muted); font-variant-numeric:tabular-nums; min-width:56px; text-align:right; }
-  path { transition:opacity .2s; }
-  footer { width:100%; text-align:center; color:var(--muted); font-size:14px; }
-</style>
+<title>Model S Weight Breakdown</title>
+<link rel="stylesheet" href="src/style.css">
 </head>
 <body>
 <div class="wrap">
-  <h1>2024 Model S Long Range: Weight Breakdown</h1>
+  <header><h1 id="title">Model S Weight Breakdown</h1><button id="tt" type="button">Theme</button></header>
   <div class="chart">
-    <svg id="pie" viewBox="0 0 200 200" aria-label="Doughnut chart of weight breakdown"></svg>
-    <div class="center"><div class="big" id="cv">4,560 lb</div><div class="small" id="cl">Curb weight (est.)</div></div>
+    <svg id="pie" viewBox="0 0 200 200" role="img" aria-label="Weight breakdown doughnut chart"></svg>
+    <div class="center"><div id="cv">&nbsp;</div><div id="cl">Loading</div></div>
   </div>
   <ul id="legend"></ul>
-  <footer>Estimates for illustration. No external scripts; works offline once loaded.</footer>
+  <footer id="note"></footer>
 </div>
-<script>
-// Weight data in pounds. Values are estimates, not official Tesla figures.
-const DATA = [
-  ["Battery Pack",      1100, "#d4af37"],
-  ["Body and Chassis",  1500, "#b8860b"],
-  ["Interior and Glass", 800, "#f5d76e"],
-  ["Wheels and Tires",   400, "#8c7a4b"],
-  ["Electronics",        400, "#e8c872"],
-  ["Fluids",             200, "#6e6248"],
-  ["Motors",             160, "#fff1b8"],
-];
-const TOTAL = DATA.reduce((s, d) => s + d[1], 0);
-const CX = 100, CY = 100, R_OUT = 96, R_IN = 60, GAP_DEG = 0.8;
-const svg = document.getElementById("pie"), legend = document.getElementById("legend");
-const cv = document.getElementById("cv"), cl = document.getElementById("cl");
-const NS = "http://www.w3.org/2000/svg";
-
-function pt(r, deg) { const a = deg * Math.PI / 180; return [CX + r * Math.cos(a), CY + r * Math.sin(a)]; }
-function arc(a0, a1) {
-  const large = a1 - a0 > 180 ? 1 : 0;
-  const [x0, y0] = pt(R_OUT, a0), [x1, y1] = pt(R_OUT, a1), [x2, y2] = pt(R_IN, a1), [x3, y3] = pt(R_IN, a0);
-  return `M${x0} ${y0}A${R_OUT} ${R_OUT} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${R_IN} ${R_IN} 0 ${large} 0 ${x3} ${y3}Z`;
-}
-const paths = [];
-DATA.forEach(([name, lb, color], i) => {
-  const p = document.createElementNS(NS, "path"); p.setAttribute("fill", color); svg.appendChild(p); paths.push(p);
-  const li = document.createElement("li");
-  li.innerHTML = `<span class="sw" style="background:${color}"></span><span>${name}</span>` +
-    `<span class="num">${lb.toLocaleString()} lb</span><span class="pct">${(lb / TOTAL * 100).toFixed(1)}%</span>`;
-  const on = () => focus(i), off = () => focus(-1);
-  li.onmouseenter = on; li.onmouseleave = off; li.onclick = () => focus(cur === i ? -1 : i);
-  p.onmouseenter = on; p.onmouseleave = off; p.onclick = li.onclick;
-  legend.appendChild(li);
-});
-let cur = -1;
-function focus(i) {
-  cur = i;
-  paths.forEach((p, j) => p.style.opacity = i < 0 || i === j ? 1 : .3);
-  [...legend.children].forEach((li, j) => li.classList.toggle("on", i === j));
-  if (i < 0) { cv.textContent = TOTAL.toLocaleString() + " lb"; cl.textContent = "Curb weight (est.)"; }
-  else { cv.textContent = DATA[i][1].toLocaleString() + " lb"; cl.textContent = DATA[i][0] + " · " + (DATA[i][1] / TOTAL * 100).toFixed(1) + "%"; }
-}
-// Animate the sweep in over ~1.2 s.
-const start = performance.now(), DUR = 1200;
-function draw(t) {
-  const k = Math.min(1, (t - start) / DUR), e = 1 - Math.pow(1 - k, 3), sweep = 360 * e;
-  let a = 0;
-  DATA.forEach(([, lb], i) => {
-    const span = lb / TOTAL * 360, a0 = a, a1 = Math.min(a + span, sweep);
-    paths[i].setAttribute("d", a1 > a0 + GAP_DEG ? arc(a0, a1 - GAP_DEG) : "");
-    a += span;
-  });
-  if (k < 1) requestAnimationFrame(draw);
-}
-requestAnimationFrame(draw);
-</script>
+<script src="themes/themes.js"></script>
+<script src="src/chart.js"></script>
 </body>
 </html>
